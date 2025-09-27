@@ -1,5 +1,5 @@
 # src/collect_cisa_trafilatura.py
-from trafilatura import fetch_url, extract, extract_metadata
+from trafilatura import fetch_url, bare_extraction
 import pandas as pd
 import time
 import configparser
@@ -15,16 +15,17 @@ class CISAReportsCollectorTrafilatura:
         self.config.read(config_path)
         
         self.base_url = "https://www.cisa.gov/news-events/news/cybersecurity-advisories"
-        # For demonstration, let's use known CISA report URLs
+        # Use working CISA URLs that are more likely to be accessible
         self.report_urls = [
-            "https://www.cisa.gov/news-events/news/2023/10/26/cisa-adds-23-known-exploited-vulnerabilities-catalog-kev",
-            "https://www.cisa.gov/news-events/news/2023/09/12/cisa-releases-guidance-securing-network-perimeters",
-            "https://www.cisa.gov/news-events/news/2023/08/15/cybersecurity-performance-goals-critical-infrastructure",
-            # Add more URLs here or fetch them dynamically
+            "https://www.cisa.gov/news-events/bulletins/sb25-265",
+            "https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-131a",
+            "https://www.cisa.gov/news-events/alerts/aa23-353a",
+            "https://www.cisa.gov/topics/cyber-threats-and-advisories",
+            "https://www.cisa.gov/resources-tools/resources/secure-by-design"
         ]
 
     def collect_reports(self):
-        """Collect CISA reports using Trafilatura"""
+        """Collect CISA reports using Trafilatura's bare_extraction"""
         all_reports = []
         
         if not self.report_urls:
@@ -36,26 +37,25 @@ class CISAReportsCollectorTrafilatura:
             try:
                 downloaded = fetch_url(url)
                 if downloaded:
-                    # Create trafilatura config from config.ini
-                    trafilatura_config = {
-                        'output_format': self.config['trafilatura']['output_format'],
-                        'with_metadata': self.config['trafilatura'].getboolean('with_metadata'),
-                        'include_tables': self.config['trafilatura'].getboolean('include_tables'),
-                        'include_images': self.config['trafilatura'].getboolean('include_images')
-                    }
+                    # Use bare_extraction which returns a dict with metadata
+                    content_doc = bare_extraction(downloaded, url=url, with_metadata=True)
+                    content = content_doc.as_dict() if content_doc else None
                     
-                    content = extract(downloaded, **trafilatura_config)
-                    metadata = extract_metadata(downloaded)
-
                     if content and content.get('text'):
                         report_data = {
                             'source': 'CISA_Trafilatura',
                             'url': url,
-                            'title': content.get('title', metadata.get('title', 'No Title') if metadata else 'No Title'),
+                            'title': content.get('title', 'No Title'),
                             'content_text': content.get('text', ''),
+                            'author': content.get('author', ''),
+                            'date': content.get('date', ''),
+                            'description': content.get('description', ''),
+                            'sitename': content.get('sitename', ''),
+                            'categories': content.get('categories', ''),
+                            'tags': content.get('tags', ''),
                             'date_collected': datetime.now().isoformat(),
                             'extraction_success': True,
-                            'metadata_full': metadata.to_dict() if metadata else {} # Store as dict
+                            'metadata_full': content  # Store the full extraction dict
                         }
                         all_reports.append(report_data)
                         print(f"Successfully extracted: {report_data['title'][:50]}...")
@@ -123,11 +123,15 @@ def main():
             cisa_trafilatura_reports.to_csv(processed_data_dir / 'cisa_trafilatura_processed.csv', index=False)
             print(f"CISA Trafilatura: {len(successful_reports)}/{len(cisa_trafilatura_reports)} reports successfully collected ({success_rate:.1f}% success rate)")
             
-            # Show sample of successful extractions
+            # Show detailed success information
             if len(successful_reports) > 0:
                 print("\nSample of collected reports:")
-                for i, row in successful_reports.head(2).iterrows():
-                    print(f"  - {row['title'][:60]}...")
+                for i, row in successful_reports.head(3).iterrows():
+                    print(f"  - Title: {row['title'][:60]}...")
+                    print(f"    Author: {row.get('author', 'N/A')}")
+                    print(f"    Date: {row.get('date', 'N/A')}")
+                    print(f"    Text length: {len(row['content_text'])} characters")
+                    print()
                     
             # Show failed extractions for debugging
             failed_reports = cisa_trafilatura_reports[~cisa_trafilatura_reports['extraction_success']]
