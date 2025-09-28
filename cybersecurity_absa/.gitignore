@@ -20,7 +20,7 @@ data/processed/
 
 models/bertopic_model
 
-checkpoints/
+checkpoints/*
 reports/
 notebooks/
 

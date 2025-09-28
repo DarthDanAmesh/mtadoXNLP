@@ -3,7 +3,7 @@
 need at Microsoft Visual C++ 14.0 or greater. https://visualstudio.microsoft.com/visual-cpp-build-tools/
 conta create -n pyabsa
 conda activate pyabsa
-pip install pyabsa trafilatura bertopic
+pip install pyabsa trafilatura bertopic hf_xet
 python -m spacy download en_core_web_lg
 
 pip install tensorflow #or for linux systems: pip install tensorflow[and-cuda]
