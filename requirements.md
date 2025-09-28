@@ -1,28 +1,19 @@
 # Core NLP and ML, Data Processing and Web Scrapping libraries
-pip install tensorflow #or pip install tensorflow[and-cuda]
+
+need at Microsoft Visual C++ 14.0 or greater. https://visualstudio.microsoft.com/visual-cpp-build-tools/
+conta create -n pyabsa
+conda activate pyabsa
+pip install pyabsa trafilatura bertopic
+python -m spacy download en_core_web_lg
+
+pip install tensorflow #or for linux systems: pip install tensorflow[and-cuda]
 pip install tf-keras
-pip install pyabsa transformers torch spacy scikit-learn pandas numpy requests beautifulsoup4 lxml sqlite3 matplotlib seaborn tqdm
-pip install trafilatura bertopic sentence-transformers umap-learn hdbscan
-python -m spacy download en_core_web_lg
 
-# Data processing and web scraping
-pip install requests beautifulsoup4 lxml
-
-# Download spaCy model
-python -m spacy download en_core_web_lg
-
-
-# Add BERTopic and dependencies
-pip install bertopic sentence-transformers umap-learn hdbscan
-
-
-# Visualization and utilities
-pip install matplotlib seaborn tqdm
-
-
-## First Time
-### run the setuo.py file to create the structure
-python setup.py
-
-### run the pyabsa configuration setup file
-python -m pyabsa_config.py
+Run the data collection scripts in this order:
+1. python src/collect_eurepoc.py
+2. python src/collect_cisa_trafilatura.py
+3. python src/collect_csis_trafilatura.py
+4. python src/preprocess_data.py
+5. python src/run_bertopic.py
+6. python src/run_pyabsa_baseline.py
+7. python src/phase1_report.py
