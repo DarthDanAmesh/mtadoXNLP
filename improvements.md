@@ -1,4 +1,93 @@
-#
+
+WARNING:tensorflow:From C:\Users\noob\AppData\Roaming\Python\Python313\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+Found 184834 non-empty lines in train.dat.atepc
+Found 8837 non-empty lines in valid.dat.atepc
+Found 9605 non-empty lines in test.dat.atepc
+Training custom cybersecurity ATEPC model...
+
+
+
+model has been trained successfully with these performance metrics:
+
+APC (Aspect Polarity Classification) Accuracy: 61.72% (max: 65.23%)
+APC F1 Score: 39.93% (max: 41.24%)
+ATE (Aspect Term Extraction) F1 Score: 91.44% (max: 92.59%)
+
+These results show that your model is quite good at extracting aspect terms (91.44% F1) but has room for improvement in sentiment classification (39.93% F1). This is common in cybersecurity datasets where sentiment can be more nuanced and context-dependent.
+
+
+-----
+
+For any specific domain other than what pyabsa was trained on, you can create a custom training dataset for your domain.
+
+'bert-base-uncased'  # Using a general-purpose BERT model was used:
+
+run, in that case:
+
+python src/create_cybersecurity_atepc_dataset.py #first to create the dataset.
+ the script does the following:
+ 1. Extract cybersecurity aspects from your text using pattern matching
+ 2. Assign sentiments based on surrounding context
+ 3. Create train, validation, and test splits in the PyABSA format
+ 4. Save them to data/custom_cybersecurity_atepc/
+
+the expected output:
+create_cybersecurity_atepc_dataset.py"
+Creating custom cybersecurity ATEPC dataset...
+Created train dataset with 700 samples: c:\Users\noob\Documents\gitProjects\mtadoXNLP\cybersecurity_absa\data\custom_cybersecurity_atepc\train.dat.apc
+Created valid dataset with 150 samples: c:\Users\noob\Documents\gitProjects\mtadoXNLP\cybersecurity_absa\data\custom_cybersecurity_atepc\valid.dat.apc
+Created test dataset with 150 samples: c:\Users\noob\Documents\gitProjects\mtadoXNLP\cybersecurity_absa\data\custom_cybersecurity_atepc\test.dat.apc
+
+ then run
+ python src/train_custom_cybersecurity_atepc.py
+
+This will:
+Load the custom cybersecurity dataset
+Train a PyABSA model specifically for cybersecurity text
+Save the model checkpoint to the models directory 
+
+
+https://github.com/yangheng95/PyABSA/blob/v2/examples-v2/aspect_term_extraction/Aspect_Term_Extraction.ipynb
+https://github.com/yangheng95/PyABSA/blob/v2/examples-v2/aspect_polarity_classification/Aspect_Sentiment_Classification.ipynb
+Even though extraction ran, no aspects or sentiments were extracted from your cybersecurity text. This is due to domain mismatch.
+Solution> Train a Custom ATEPC Model for Cybersecurity Domain
+
+This is what was done to>
+
+Created a dataset. 
+
+Each line:
+<text> ||| <aspect> ||| <sentiment>
+
+
+When running with multiple aspect sentiment pairs. PyABSA struggles with the multiple aspect-sentiment pairs on a single line.
+
+for example: if you use Multiple aspects such that>
+The chinese state-sponsored [BRICKSTORM] malware is highly evasive. ||| BRICKSTORM ||| negative (single aspect)
+Hackers targeted [Linux] systems for [intellectual property] theft. ||| Linux ||| neutral ||| intellectual property ||| negative (multiple aspects per line)
+
+it will struggle.
+
+
+
+💡 PyABSA’s pretrained ATEPC models were trained on domains like:
+
+Restaurants
+
+Laptops
+
+Twitter
+
+These models are not tuned to extract technical terms like "Linux", "APT", "persistent access", etc.
+
+✅ Fix:
+To improve extraction success:
+
+Train a custom ATEPC model on your cybersecurity dataset (details below).
+(Optional) Pre-process your text to simplify sentence structures.
+
+
 [ ]Improve the preprocess_data.py (async, or any other way to improve the performance)
 [ ]Improve the collect_cisa_trafilatura.py, collect_eurepoc.py, collect_csis_trafilatura.py...  (async, or any other way to improve the performance)
 
