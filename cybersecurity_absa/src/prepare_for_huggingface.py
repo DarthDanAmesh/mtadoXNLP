@@ -15,7 +15,7 @@ def get_apc_f1_from_name(dirname):
 
 def prepare_and_upload_to_huggingface():
     # Set your Hugging Face token
-    token = ""  # Replace with your actual token
+    token = "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"  # Replace with your actual token
     
     # Login to Hugging Face
     HfFolder.save_token(token)
