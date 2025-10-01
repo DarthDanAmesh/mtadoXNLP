@@ -19,7 +19,7 @@ data/processed/
 *.db-*
 
 models/bertopic_model
-
+cybersecurity_absa/src/prepare_for_huggingface.py
 checkpoints/*
 reports/
 notebooks/
